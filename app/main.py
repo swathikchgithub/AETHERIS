@@ -15,6 +15,7 @@ from contextlib import asynccontextmanager
 
 import anthropic
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 
@@ -67,6 +68,21 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Aetheris", lifespan=lifespan)
+
+# No cookie-based auth is used (session_id travels in the JSON body), so a
+# wildcard origin with allow_credentials=False is safe by default. Tighten
+# via AETHERIS_CORS_ORIGINS (comma-separated) once you have a fixed frontend
+# domain — e.g. "https://aetheris.vercel.app,http://localhost:3000".
+_cors_origins_raw = os.environ.get("AETHERIS_CORS_ORIGINS", "*")
+_cors_origins = ["*"] if _cors_origins_raw == "*" else [o.strip() for o in _cors_origins_raw.split(",")]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
 
 
 class ChatRequest(BaseModel):
