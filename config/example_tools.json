@@ -1,0 +1,53 @@
+[
+  {
+    "name": "get_order_status",
+    "description": "Look up the current status and tracking info for a customer order by order ID.",
+    "endpoint": "https://api.tenant-partner.example.com/v1/orders/status",
+    "method": "GET",
+    "parameters": [
+      {
+        "name": "order_id",
+        "type": "string",
+        "description": "The order identifier, e.g. A-1001",
+        "required": true
+      }
+    ],
+    "auth": {
+      "scheme": "bearer_env",
+      "env_var": "PARTNER_API_TOKEN"
+    },
+    "timeout_seconds": 8
+  },
+  {
+    "name": "issue_refund",
+    "description": "Issue a refund for a given order up to the original charge amount.",
+    "endpoint": "https://api.tenant-partner.example.com/v1/refunds",
+    "method": "POST",
+    "parameters": [
+      {
+        "name": "order_id",
+        "type": "string",
+        "description": "The order identifier to refund",
+        "required": true
+      },
+      {
+        "name": "amount_cents",
+        "type": "integer",
+        "description": "Refund amount in cents",
+        "required": true
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "description": "Reason for the refund",
+        "required": false
+      }
+    ],
+    "auth": {
+      "scheme": "api_key_header_env",
+      "env_var": "PARTNER_API_KEY",
+      "header_name": "X-Api-Key"
+    },
+    "timeout_seconds": 10
+  }
+]
