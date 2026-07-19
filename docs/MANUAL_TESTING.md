@@ -53,9 +53,29 @@ file, an API contract, or a log line.*
 
 1. Continuing the same page (don't click "New conversation"), type:
    `Thanks, also can I get a refund?`
-2. **Expect:** the reply references order A-2002 from the *previous* turn
-   without you repeating it, and a `🔧 issue_refund` badge appears — proof
+2. **Expect:** the reply shows awareness of the ongoing A-2002 conversation
+   (e.g. references the "technical issue" from the previous turn) — proof
    `session_id` correctly threads conversation history.
+3. **Expect — and this is correct behavior, not a bug:** Claude will very
+   likely ask a clarifying question (order, amount, and/or reason) rather
+   than call `issue_refund` immediately, even though A-2002 was just
+   mentioned. Tested live: neither "can I get a refund?" nor "a refund of 20
+   dollars for order A-2002?" triggered the tool on their own — Claude asked
+   for the missing amount, then for a reason and amount *confirmation*,
+   before actually calling it. Only providing everything at once —
+   `"Thanks, also can I get a refund of 20 dollars for order A-2002 because
+   it arrived damaged, yes 20 dollars is correct?"` — reliably triggered
+   `🔧 issue_refund` in testing.
+
+   **This is expected, not a defect worth chasing:** which exact phrasing
+   triggers a tool call is a live-model judgment call, not something this
+   codebase controls or guarantees — that's exactly why
+   `tests/test_aetheris_core.py` asserts tool trajectories against a
+   *scripted* fake reasoning engine (§9 of `docs/TRD.md`) instead of a real
+   LLM. Use §4.3/§4.4 below (automated tests) if you need a deterministic
+   trajectory assertion; use this section to eyeball that the *shape* of
+   the behavior is sane (asks for missing required info, doesn't guess a
+   dollar amount, doesn't crash).
 
 ### 1.4 Session reset
 
